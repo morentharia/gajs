@@ -44,6 +44,10 @@ func (meta JSMeta) Add(clictx *cli.Context, url, text string, t int) error {
 }
 
 func (meta JSMeta) filename(clictx *cli.Context, prefix string) string {
+	name := fmt.Sprintf("%s.js", prefix)
+	if len(name) >= 255 {
+		name = name[:240] + "_dot_dot_"
+	}
 	return filepath.Join(
 		clictx.String("output"),
 		colly.SanitizeFileName(fmt.Sprintf("%s.js", prefix)),

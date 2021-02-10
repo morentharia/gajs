@@ -47,7 +47,7 @@ func action(clictx *cli.Context) error {
 	)
 	c.Limit(&colly.LimitRule{
 		DomainGlob:  "*",
-		Parallelism: 2,
+		Parallelism: 8,
 	})
 	c.WithTransport(&http.Transport{
 		Proxy: http.ProxyFromEnvironment,
@@ -75,6 +75,11 @@ func action(clictx *cli.Context) error {
 		}
 		if !strings.HasSuffix(a.Host, uParsed.Host) {
 			return
+		}
+		for _, v := range clictx.StringSlice("filter-word") {
+			if strings.Contains(absoluteURL, v) {
+				return
+			}
 		}
 		e.Request.Visit(absoluteURL)
 	})
@@ -179,6 +184,11 @@ func Main() {
 				Name:  "max-depth",
 				Value: 4,
 				Usage: "max crawler recursion depth",
+			},
+			&cli.StringSliceFlag{
+				Name:    "filter-word",
+				Aliases: []string{"fw"},
+				Usage:   "filter urls by word",
 			},
 		},
 		Action: action,
