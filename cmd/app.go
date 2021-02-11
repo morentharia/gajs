@@ -146,6 +146,21 @@ func action(clictx *cli.Context) error {
 		syscall.Kill(syscall.Getpid(), syscall.SIGKILL)
 	}()
 
+	go func() {
+		ticker := time.NewTicker(60 * time.Second)
+		for {
+			select {
+			case <-ticker.C:
+				mu.Lock()
+				err = meta.Save(clictx)
+				if err != nil {
+					log.WithError(err).Error("meta.Save")
+				}
+				mu.Unlock()
+			}
+		}
+	}()
+
 	c.Visit(u)
 	c.Wait()
 
